@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #suggestions{
+            width: 20%;
+            height: 75%;
+            background-color: rgb(218, 141, 26);
+            border-radius: 5px;
+            overflow: hidden;
+            padding: 20px;
+            
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); /* Add a 3D effect */
+        }
+
+
+        #suggest-display {
+            height: 500px;
+            overflow-y: auto;
+            padding-top: 60%; 
+            
+            }
+
+
+        #chat-container {
+            width: 60%;
+            height: 80%;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        #chat-box {
+            padding: 20px;
+        }
+        #chat-display {
+            height: 500px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 20%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        h1 {
+            
+            color: #333;
+            font-size: 60px;
+        }
+        p {
+            color: #333;
+            font-size: 18px;
+            font-style: italic;
+        }
+        img {
+            height: 100px;
+            width: 100px;
+            
+		
+        }
+		/* Styles for the search and results boxes */
+        #user-input {
+            background-color: #e6f7ff;  /* Light blue */
+            border-color: #1890ff;  /* Blue */
+        }
+        #chat-display p {
+            background-color: #f5f5f5;  /* Light pink */
+            border: 1px solid #d3d3d3;  /* Pink */
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+			/* Style the tab */
+	.tab {
+	  overflow: hidden;
+	  border: 1px solid #ccc;
+	  background-color: #f1f1f1;
+	}
+
+	/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  color: black;  /* Change font color to black */
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #4CAF50;  /* Change to a lighter green when hovered */
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #008000;  /* Change to a darker green when active */
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: block flex;
+  padding: 6px 12px;
+  border: 1px solid #008000;  /* Change border color to green */
+  border-top: none;
+}
+
+
+/* CSS for the flex container */
+.tabcontent-item {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* CSS for each card */
+.tabcontent-item div {
+    flex: 1 0 15%;
+    text-align: center;
+    border: 1px solid #ccc;
+    margin: 10px;
+    padding: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    border-radius: 5px;
+}
+
+/* CSS for the image in each card */
+.tabcontent-item div img {
+    width: 100%;
+}
+
+/* CSS for the description in each card */
+.tabcontent-item div b {
+    font-size: 0.6em;
+    word-wrap: break-word;
+}
+
+.product:hover {
+    background-color: #e6ce18; /* Change as needed */
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #e6ce18; /* Highlight the selected div with a yellow background */
+}
+		
+    </style>
+    <title>VirtuCart - Smart Search</title>
+</head>
+<body>
+<div id="chat-container">
+	
+        <h1 align="center">
+		<img src="{{ url_for('static', filename='Logo.jpg') }}" alt="Logo">
+	     
+		 VirtuCart Retail Smart Search</h1>
+		<div style="display: flex; justify-content: center; margin-top: 20px;">
+                <input type="text" id="user-input" placeholder="Search in your own style......">
+                 <button id="send-button" onclick="sendMessage()">Search</button>
+            </div>
+        <div id="chat-box">
+            <div id="chat-display">
+                <p>Try searching like:</p>
+				<p>Hosting a party what should I buy</p>
+                <p>I wanted to make a paper kite</p>
+                <p>Decorative Items for my room</p>
+            </div>
+            
+        </div>
+    </div>
+<div id="suggestions" style="display: none;" >
+    <div id="suggest-display">
+        <p style="text-align: center;"><b style="font-size: 24px;">Our Recommendations</b></p>
+        <div id="product-recommend"><br/>Click on the product to view our recommendation</div>
+        
+    </div>
+</div>
+
+  <script>
+    function sendMessage() {
+        var userMessage = document.getElementById("user-input").value;
+        var sendButton = document.getElementById("send-button");
+        //Hide Suggestions Window
+        document.getElementById("suggestions").style.display="none";
+
+        // Disable the send button
+        sendButton.disabled = true;
+
+        var chatDisplay = document.getElementById("chat-display");
+        // Clear previous search and results
+        chatDisplay.innerHTML = "";
+
+        chatDisplay.innerHTML += "<p><b>Search:</b> " + userMessage + "</p>";
+		
+		// Display a spinning GIF
+			var spinner = document.createElement('img');
+			spinner.src = '{{ url_for('static', filename='loading.gif') }}';  // Loading Gif
+			spinner.style.display = 'block flex';
+			spinner.style.margin = 'auto';
+			chatDisplay.appendChild(spinner);
+			
+					// Array of quotes to display while searching
+			var quotes = [
+				"Do you know VirtuCart is the first enhanced search engine with LLM's for retail?",
+				"Do you know it just takes few hours to days to integrate Virtucart into your system?",
+				"Do you know there are 5 great minds behind VirtuCart?"
+			];
+			var quoteIndex = 0;
+
+			// Display the first quote
+			var searchingElement = document.createElement('p');
+			searchingElement.innerHTML = "<p style='text-align: center; color: red; font-size: 20px; font-weight: bold;'>" + quotes[quoteIndex++] + "</p>";
+			chatDisplay.appendChild(searchingElement);
+
+			// Function to update the message with a new quote every 5 seconds
+			var quoteInterval = setInterval(function() {
+				if (quoteIndex == quotes.length) {
+					quoteIndex = 0;  // Reset the index when it reaches the end of the array
+				}
+				searchingElement.innerHTML = "<p style='text-align: center; color: red; font-size: 20px; font-weight: bold;'>" + quotes[quoteIndex++] + "</p>";
+			}, 5000);
+
+
+        // Make an AJAX request to the Flask app
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/get?msg=" + userMessage, true);
+       xhr.onload = function () {
+        // Remove "Searching..." message
+		chatDisplay.removeChild(spinner);
+        chatDisplay.removeChild(searchingElement);
+		 clearInterval(quoteInterval);  // Stop updating the quotes
+       
+      
+        var data = JSON.parse(xhr.responseText)['productIds'];
+        var productMap=JSON.parse(xhr.responseText)['IdNameMap']
+        console.log(data)
+        chatDisplay.innerHTML = '<div class="tab"></div><div class="tabcontent"></div>';  // Create divs for the tabs and tab contents
+        var tab = chatDisplay.getElementsByClassName("tab")[0];
+        var tabcontent = chatDisplay.getElementsByClassName("tabcontent")[0];
+		
+
+        for (var i = 0; i < data.length; i++) {
+		    var response = data[i]
+            //.content.replace(/\n/g, '<br>');  // Replace newline characters with <br> tags
+            tab.innerHTML += `<button class="tablinks" onclick="openResponse(event, 'response${i}')">Response ${i+1}</button>`;  // Add the tabs
+            console.log(i)
+            var divcontent = '<div id=response'+i+' class="tabcontent-item" style="display: flex; flex-wrap: wrap;">'
+             for (var j = 0; j< response.length; j++) {
+                productcode=response[j]
+                
+                if(productcode!='no_item_found'){
+                    description=productMap[productcode]
+                    
+                    var url='https://virtucartimages.blob.core.windows.net/vimages/Pictures/'+productcode+'.png?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-24T21:04:59Z&st=2024-02-24T13:04:59Z&spr=https&sig=%2B%2BQnkTzwod6zc3dJtW1wCYeFXPCeK0Ij3LAYbyAxP%2BY%3D'
+                    
+                    divcontent += `<div class="product" onclick="showproductrecommend('${productcode}')" data-productcode="${productcode}"><img src="${url}" /><br/><b>${description}</b></div>`;
+                   
+                }
+            }
+            divcontent+='</div>'
+            
+            tabcontent.innerHTML+=divcontent
+            
+        // Create the like and dislike buttons
+            // Get the unique value from the API response
+            var responseApiUniqueValue = data[i].api_call_id  // Add the API call ID to the response
+        // Create the buttons
+ 
+            var accurateButton = document.createElement("button");
+            accurateButton.innerHTML = "Accurate";
+            accurateButton.setAttribute('onclick', 'logResponse("' + i + '", "Accurate", "' + responseApiUniqueValue + '")');
+
+            var notAccurateButton = document.createElement("button");
+            notAccurateButton.innerHTML = "Not Accurate";
+            notAccurateButton.setAttribute('onclick', 'logResponse("' + i + '", "Not Accurate", "' + responseApiUniqueValue + '")');
+            // Add the buttons to the response div
+            var responseDiv = document.getElementById('response' + i);
+
+            // Create a div that will take up the full width of responseDiv
+            var newLineDiv = document.createElement('div');
+            newLineDiv.style.width = '100%';
+            newLineDiv.style.visibility = 'hidden';
+
+            // Append the full-width div to responseDiv
+            responseDiv.appendChild(newLineDiv);
+            responseDiv.appendChild(accurateButton);
+            responseDiv.appendChild(notAccurateButton);
+ 
+        }
+		 tabcontent = document.getElementsByClassName("tabcontent-item");
+			for (i = 0; i < tabcontent.length; i++) {
+				tabcontent[i].style.display = "none";  // Hide all tab contents
+			}
+        document.getElementById("response0").style.display = "block flex";  // Display the first tab by default
+		document.querySelector(".tab button").className += " active";  // Make the first tab active
+
+        // Enable the send button
+        sendButton.disabled = false;
+        //Show Suggestions Window
+        document.getElementById("suggestions").style.display="block";
+
+    };
+        xhr.send();
+    }
+
+  function openResponse(evt, responseName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent-item");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";  // Hide all tab contents
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");  // Remove the "active" class from all tabs
+    }
+    document.getElementById(responseName).style.display = "block flex";  // Show the clicked tab's content
+    evt.currentTarget.className += " active";  // Add the "active" class to the clicked tab
+}
+
+function showproductrecommend(stockcode)
+{
+ 
+    var productDivs = document.getElementsByClassName('product');
+
+    
+    
+    // Loop through all product divs
+    for (var i = 0; i < productDivs.length; i++) {
+        var div = productDivs[i];
+    // If this div's product code matches the clicked product code,
+        
+        // remove the 'selected' class and disable it
+        
+        if (div.getAttribute('data-productcode') !== stockcode) {
+            div.classList.remove('selected');
+            div.style.pointerEvents = 'none';
+            
+        } 
+        // Otherwise,add the 'selected' class to it and enable it
+        else {
+            
+            
+            div.classList.add('selected');
+            div.style.pointerEvents = 'auto';
+            
+           
+        }
+    }
+
+    // Display a spinning GIF
+    var spinner = document.createElement('img');
+                spinner.src = '{{ url_for('static', filename='recommend_loading.gif') }}';  // Loading Gif
+                spinner.style.display = 'block flex';
+                spinner.style.margin = 'auto';
+                
+                // Clear the 'product-recommend' element and append the spinner
+            var productRecommend = document.getElementById('product-recommend');
+            productRecommend.innerHTML = '';
+            productRecommend.appendChild(spinner);
+
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/modelrecommendation?stockcodes=" + stockcode, true);
+    xhr.onload = function () {
+    r_divcontent=''  
+    
+        for(element of JSON.parse(xhr.responseText)) {
+            var r_productcode = element[0];
+            var r_desc=element[1]; 
+            if(stockcode!=r_productcode)
+                {
+                var r_url='https://virtucartimages.blob.core.windows.net/vimages/Pictures/'+r_productcode+'.png?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-24T21:04:59Z&st=2024-02-24T13:04:59Z&spr=https&sig=%2B%2BQnkTzwod6zc3dJtW1wCYeFXPCeK0Ij3LAYbyAxP%2BY%3D'
+        
+                r_divcontent += `<div class="product"><img src="${r_url}" /><br/><b>${r_desc}</b></div>`;
+                }
+        }
+        
+        document.getElementById('product-recommend').innerHTML = r_divcontent;
+        var productDivs = document.getElementsByClassName('product');   
+        // Loop through all product divsto reenable click
+            for (var i = 0; i < productDivs.length; i++) {
+                    var div = productDivs[i];
+                    div.classList.remove('selected');
+                    div.style.pointerEvents = 'auto';
+                   
+                }
+
+
+
+    }
+    xhr.send()
+      
+
+}
+// Function to log the user's response
+function logResponse(tabName, userClickedValue, responseApiUniqueValue) {
+    var timestamp = new Date().toISOString();
+    var userQuestion = document.getElementById("user-input").value;
+
+    // Create the log entry
+    
+var logEntry = timestamp + ' | ' + tabName + ' | ' + userClickedValue + ' | ' + userQuestion + ' | ' + responseApiUniqueValue;
+
+
+    // Send the log entry to your server to be saved in a text file
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/log", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("logEntry=" + encodeURIComponent(logEntry));
+}
+	
+</script>
+
+</body>
+</html>
