@@ -14,7 +14,7 @@ from EmbeddingModel import EmbeddingModel
 import readData as rd
 import json
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = ""
 
 
 app = Flask(__name__)
