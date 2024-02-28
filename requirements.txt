@@ -1,0 +1,10 @@
+Flask
+openai
+jsonify
+gunicorn
+pyodbc
+azure-storage-blob
+matplotlib
+pandas
+scikit-learn
+numpy
